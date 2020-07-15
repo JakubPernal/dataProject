@@ -1,5 +1,6 @@
 package com.pernal.persistence.repository;
 
+import com.pernal.exception.DataPersistenceException;
 import com.pernal.persistence.DataColumns;
 import com.pernal.persistence.connection.DbConnection;
 import com.pernal.persistence.entity.DataEntity;
@@ -7,10 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 @Repository
@@ -37,12 +35,17 @@ public class DataRepositoryImpl implements DataRepository {
     }
 
     @Override
-    public DataEntity getDataByPrimaryKey(String key) {
+    public DataEntity getDataByPrimaryKey(String key) throws DataPersistenceException {
         try (Connection connection = dbConnection.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("select * from testdb.data where primary_key = ?")) {
             preparedStatement.setString(DataColumns.PRIMARY_KEY.getIndex(), key);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            return retrieveDataEntityFromResultSet(resultSet);
+            if(resultSet.next()){
+                return retrieveDataEntityFromResultSet(resultSet);
+            } else {
+                throw new DataPersistenceException("No matched row for key: " + key);
+            }
+
         } catch (SQLException e) {
             logger.error("Error while selecting data by id: {}", key);
             return null;
@@ -120,7 +123,6 @@ public class DataRepositoryImpl implements DataRepository {
     }
 
     private DataEntity retrieveDataEntityFromResultSet(ResultSet resultSet) throws SQLException {
-        resultSet.next();
         DataEntity dataEntity = new DataEntity();
 
         dataEntity.setPrimaryKey(resultSet.getString(DataColumns.PRIMARY_KEY.toString()));

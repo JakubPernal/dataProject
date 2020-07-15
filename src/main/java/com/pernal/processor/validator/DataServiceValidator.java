@@ -4,20 +4,19 @@ import com.pernal.exception.DataValidationException;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Set;
 
 @Component
 public class DataServiceValidator {
 
-    private static final String HEADER = "PRIMARY_KEY,NAME,DESCRIPTION,UPDATED_TIMESTAMP";
+    public static final String HEADER = "PRIMARY_KEY,NAME,DESCRIPTION,UPDATED_TIMESTAMP";
 
-    public void validateHeader(String line) throws DataValidationException {
+    public static void validateHeader(String line) throws DataValidationException {
         if (!line.trim().equals(HEADER)) {
             throw new DataValidationException("Header is incorrect! The correct value is: " + HEADER);
         }
     }
 
-    public void validateTimestamp(String timestamp) throws DataValidationException {
+    public static void validateTimestamp(String timestamp) throws DataValidationException {
         try {
             long innerTimestamp = Long.parseLong(timestamp);
             if (new Date().compareTo(new Date(innerTimestamp)) < 0) {
@@ -28,7 +27,7 @@ public class DataServiceValidator {
         }
     }
 
-    public void validateRowDataQuantity(String[] columnsData) throws DataValidationException {
+    public static void validateRowDataQuantity(String[] columnsData) throws DataValidationException {
         if (columnsData.length != 4) {
             throw new DataValidationException("Invalid data quantity!");
         }

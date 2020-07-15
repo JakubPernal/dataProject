@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/data")
+@RequestMapping(value = "/data", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DataController {
 
     private final DataService dataService;

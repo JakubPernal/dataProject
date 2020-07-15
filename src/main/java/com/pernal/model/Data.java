@@ -1,6 +1,7 @@
 package com.pernal.model;
 
 import java.sql.Timestamp;
+import java.util.Objects;
 
 public class Data {
     private String primaryKey;
@@ -38,5 +39,21 @@ public class Data {
 
     public void setUpdateTimestamp(Timestamp updateTimestamp) {
         this.updateTimestamp = updateTimestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Data data = (Data) o;
+        return Objects.equals(primaryKey, data.primaryKey) &&
+                Objects.equals(name, data.name) &&
+                Objects.equals(description, data.description) &&
+                Objects.equals(updateTimestamp, data.updateTimestamp);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(primaryKey, name, description, updateTimestamp);
     }
 }

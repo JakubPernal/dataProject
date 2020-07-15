@@ -13,31 +13,31 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 public class DataFileProcessor {
 
     private final Logger logger = LoggerFactory.getLogger(DataFileProcessor.class);
 
-    private final DataServiceValidator dataServiceValidator;
-
-    public DataFileProcessor(DataServiceValidator dataServiceValidator) {
-        this.dataServiceValidator = dataServiceValidator;
-    }
-
     public List<Data> process(MultipartFile multipartFile) throws DataValidationException {
-        try (InputStream is = multipartFile.getInputStream(); BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
-            String headerLine = br.readLine();
+        if (multipartFile != null) {
+            try (InputStream is = multipartFile.getInputStream(); BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+                String headerLine = br.readLine();
 
-            dataServiceValidator.validateHeader(headerLine);
+                DataServiceValidator.validateHeader(headerLine);
 
-            return processRows(br);
-        } catch (IOException e) {
-            logger.error("Error parsing file: ", e);
+                return processRows(br);
+            } catch (IOException e) {
+                logger.error("Error parsing file: ", e);
+                return Collections.emptyList();
+            }
+        } else {
+            logger.warn("File was null!");
             return Collections.emptyList();
         }
-
     }
 
     private List<Data> processRows(BufferedReader br) throws IOException {
@@ -62,7 +62,7 @@ public class DataFileProcessor {
         return dataList;
     }
 
-    private Data parseRow(String[] columnsData) {
+    public Data parseRow(String[] columnsData) {
         Data data = new Data();
 
         data.setPrimaryKey(columnsData[0]);
@@ -74,7 +74,7 @@ public class DataFileProcessor {
     }
 
     private void validateRow(String[] columnsData) throws DataValidationException {
-        dataServiceValidator.validateRowDataQuantity(columnsData);
-        dataServiceValidator.validateTimestamp(columnsData[3]);
+        DataServiceValidator.validateRowDataQuantity(columnsData);
+        DataServiceValidator.validateTimestamp(columnsData[3]);
     }
 }

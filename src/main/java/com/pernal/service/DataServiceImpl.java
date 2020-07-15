@@ -1,5 +1,6 @@
 package com.pernal.service;
 
+import com.pernal.exception.DataPersistenceException;
 import com.pernal.exception.DataValidationException;
 import com.pernal.mapper.DataMapper;
 import com.pernal.model.Data;
@@ -40,17 +41,22 @@ public class DataServiceImpl implements DataService {
 
             return ResponseEntity.ok(DataServiceResponse.emptyBodyResponse(HttpStatus.OK, "Data has been uploaded - for possible errors check logs"));
         } catch (DataValidationException e) {
-            logger.error("validation error: ", e);
+            logger.error("Validation error: ", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(DataServiceResponse.emptyBodyResponse(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage()));
         }
     }
 
     @Override
     public ResponseEntity<DataServiceResponse> getData(String key) {
-        DataEntity dataEntity = dataRepository.getDataByPrimaryKey(key);
-        Data data = DataMapper.mapToData(dataEntity);
+        try {
+            DataEntity dataEntity = dataRepository.getDataByPrimaryKey(key);
+            Data data = DataMapper.mapToData(dataEntity);
 
-        return ResponseEntity.ok(DataServiceResponse.createResponse(data, HttpStatus.OK, "OK"));
+            return ResponseEntity.ok(DataServiceResponse.createResponse(data, HttpStatus.OK, "OK"));
+        } catch (DataPersistenceException e) {
+            logger.warn(e.getMessage());
+            return ResponseEntity.ok(DataServiceResponse.createResponse(null, HttpStatus.NOT_FOUND, "Entity with given id not found in database"));
+        }
     }
 
     @Override
