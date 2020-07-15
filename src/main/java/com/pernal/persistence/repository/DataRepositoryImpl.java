@@ -65,17 +65,7 @@ public class DataRepositoryImpl implements DataRepository {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("insert into testdb.data (primary_key, `name`, description, updated_timestamp) values (?,?,?,?)")) {
 
-            dataEntities.forEach(dataEntity -> {
-                try {
-                    preparedStatement.clearParameters();
-
-                    fillStatement(dataEntity, preparedStatement);
-
-                    preparedStatement.addBatch();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            });
+            prepareStatementToExecute(dataEntities, preparedStatement);
 
             logger.info("\n\nBatch insert started...\n\n");
 
@@ -84,19 +74,37 @@ public class DataRepositoryImpl implements DataRepository {
             logger.info("\n\nBatch insert finished\n\n");
         } catch (SQLException e) {
             logger.warn("Error while inserting data by batch - entities haven't been persisted. Error: {}", e.getMessage());
-            logger.info("\n\nIndividual inserts started...\n\n");
-
-            dataEntities.forEach(this::createData);
-
-            logger.info("\n\nIndividual inserts finished\n\n");
+            processIndividualMode(dataEntities);
         }
+    }
+
+    private void prepareStatementToExecute(List<DataEntity> dataEntities, PreparedStatement preparedStatement) {
+        dataEntities.forEach(dataEntity -> {
+            try {
+                preparedStatement.clearParameters();
+
+                fillEachStatement(dataEntity, preparedStatement);
+
+                preparedStatement.addBatch();
+            } catch (SQLException e) {
+                logger.error("Error while preparing statement: ", e);
+            }
+        });
+    }
+
+    private void processIndividualMode(List<DataEntity> dataEntities) {
+        logger.info("\n\nIndividual inserts started...\n\n");
+
+        dataEntities.forEach(this::createData);
+
+        logger.info("\n\nIndividual inserts finished\n\n");
     }
 
     private void createData(DataEntity dataEntity) {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("insert into testdb.data (primary_key, `name`, description, updated_timestamp) values (?,?,?,?)")) {
 
-            fillStatement(dataEntity, preparedStatement);
+            fillEachStatement(dataEntity, preparedStatement);
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -104,7 +112,7 @@ public class DataRepositoryImpl implements DataRepository {
         }
     }
 
-    private void fillStatement(DataEntity dataEntity, PreparedStatement preparedStatement) throws SQLException {
+    private void fillEachStatement(DataEntity dataEntity, PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.setString(DataColumns.PRIMARY_KEY.getIndex(), dataEntity.getPrimaryKey());
         preparedStatement.setString(DataColumns.NAME.getIndex(), dataEntity.getName());
         preparedStatement.setString(DataColumns.DESCRIPTION.getIndex(), dataEntity.getDescription());

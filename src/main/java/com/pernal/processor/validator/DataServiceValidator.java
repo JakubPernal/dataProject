@@ -1,4 +1,4 @@
-package com.pernal.parser.validator;
+package com.pernal.processor.validator;
 
 import com.pernal.exception.DataValidationException;
 import org.springframework.stereotype.Component;
@@ -31,6 +31,12 @@ public class DataServiceValidator {
             }
         } catch (NumberFormatException e){
             throw new DataValidationException("Invalid timestamp - have to contains only numbers");
+        }
+    }
+
+    public void validateRowDataQuantity(String[] columnsData) throws DataValidationException {
+        if(columnsData.length != 4){
+            throw new DataValidationException("Invalid data quantity!");
         }
     }
 }

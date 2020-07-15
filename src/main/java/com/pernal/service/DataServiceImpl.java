@@ -4,7 +4,7 @@ import com.pernal.exception.DataValidationException;
 import com.pernal.mapper.DataMapper;
 import com.pernal.model.Data;
 import com.pernal.model.DataServiceResponse;
-import com.pernal.parser.DataFileParser;
+import com.pernal.processor.DataFileProcessor;
 import com.pernal.persistence.repository.DataRepository;
 import com.pernal.persistence.entity.DataEntity;
 import org.slf4j.Logger;
@@ -23,16 +23,16 @@ public class DataServiceImpl implements DataService {
     private Logger logger = LoggerFactory.getLogger(DataServiceImpl.class);
 
     private DataRepository dataRepository;
-    private DataFileParser dataFileParser;
+    private DataFileProcessor dataFileProcessor;
 
-    public DataServiceImpl(DataRepository dataRepository, DataFileParser dataFileParser) {
+    public DataServiceImpl(DataRepository dataRepository, DataFileProcessor dataFileProcessor) {
         this.dataRepository = dataRepository;
-        this.dataFileParser = dataFileParser;
+        this.dataFileProcessor = dataFileProcessor;
     }
 
     public ResponseEntity<DataServiceResponse> processDataFile(MultipartFile multipartFile) {
         try {
-            List<Data> dataList = dataFileParser.parseData(multipartFile);
+            List<Data> dataList = dataFileProcessor.process(multipartFile);
             List<DataEntity> dataEntities = dataList.stream().map(DataMapper::mapToEntity).collect(Collectors.toList());
 
             dataRepository.createDataBatch(dataEntities);
