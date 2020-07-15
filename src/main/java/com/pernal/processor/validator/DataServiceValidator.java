@@ -17,25 +17,19 @@ public class DataServiceValidator {
         }
     }
 
-    public void validatePrimaryKey(String primaryKey, Set<String> primaryKeys) throws DataValidationException {
-        if (primaryKeys.contains(primaryKey)) {
-            throw new DataValidationException("Duplicated primary key!");
-        }
-    }
-
     public void validateTimestamp(String timestamp) throws DataValidationException {
-        try{
+        try {
             long innerTimestamp = Long.parseLong(timestamp);
-            if(new Date().compareTo(new Date(innerTimestamp)) < 0){
+            if (new Date().compareTo(new Date(innerTimestamp)) < 0) {
                 throw new DataValidationException("Invalid timestamp - future date");
             }
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             throw new DataValidationException("Invalid timestamp - have to contains only numbers");
         }
     }
 
     public void validateRowDataQuantity(String[] columnsData) throws DataValidationException {
-        if(columnsData.length != 4){
+        if (columnsData.length != 4) {
             throw new DataValidationException("Invalid data quantity!");
         }
     }

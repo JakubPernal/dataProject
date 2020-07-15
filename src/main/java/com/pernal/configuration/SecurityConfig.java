@@ -1,6 +1,7 @@
 package com.pernal.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,15 +12,27 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Value("${service.data.client.login}")
+    private String clientLogin;
+
+    @Value("${service.data.client.password}")
+    private String clientPassword;
+
+    @Value("${service.data.admin.login}")
+    private String adminLogin;
+
+    @Value("${service.data.admin.password}")
+    private String adminPassword;
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                    .withUser("client")
-                    .password("{noop}Client123.")
+                    .withUser(clientLogin)
+                    .password("{noop}" + clientPassword)
                     .authorities("ROLE_USER")
                 .and()
-                    .withUser("serviceOwner")
-                    .password("{noop}Owner123.")
+                    .withUser(adminLogin)
+                    .password("{noop}" + adminPassword)
                     .authorities("ROLE_ADMIN");
     }
 

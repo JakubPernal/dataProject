@@ -4,9 +4,9 @@ import com.pernal.exception.DataValidationException;
 import com.pernal.mapper.DataMapper;
 import com.pernal.model.Data;
 import com.pernal.model.DataServiceResponse;
-import com.pernal.processor.DataFileProcessor;
-import com.pernal.persistence.repository.DataRepository;
 import com.pernal.persistence.entity.DataEntity;
+import com.pernal.persistence.repository.DataRepository;
+import com.pernal.processor.DataFileProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -30,6 +30,7 @@ public class DataServiceImpl implements DataService {
         this.dataFileProcessor = dataFileProcessor;
     }
 
+    @Override
     public ResponseEntity<DataServiceResponse> processDataFile(MultipartFile multipartFile) {
         try {
             List<Data> dataList = dataFileProcessor.process(multipartFile);
@@ -44,6 +45,7 @@ public class DataServiceImpl implements DataService {
         }
     }
 
+    @Override
     public ResponseEntity<DataServiceResponse> getData(String key) {
         DataEntity dataEntity = dataRepository.getDataByPrimaryKey(key);
         Data data = DataMapper.mapToData(dataEntity);
@@ -51,6 +53,7 @@ public class DataServiceImpl implements DataService {
         return ResponseEntity.ok(DataServiceResponse.createResponse(data, HttpStatus.OK, "OK"));
     }
 
+    @Override
     public ResponseEntity<DataServiceResponse> deleteData(String key) {
         dataRepository.deleteDataByPrimaryKey(key);
 

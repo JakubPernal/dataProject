@@ -3,17 +3,17 @@ package com.pernal.model;
 import java.sql.Timestamp;
 
 public class Data {
-    private String iprimaryKey;
+    private String primaryKey;
     private String name;
     private String description;
     private Timestamp updateTimestamp;
 
-    public String getIprimaryKey() {
-        return iprimaryKey;
+    public String getPrimaryKey() {
+        return primaryKey;
     }
 
-    public void setIprimaryKey(String iprimaryKey) {
-        this.iprimaryKey = iprimaryKey;
+    public void setPrimaryKey(String primaryKey) {
+        this.primaryKey = primaryKey;
     }
 
     public String getName() {

@@ -1,9 +1,6 @@
 package com.pernal.model;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
-import java.io.Serializable;
 
 public class DataServiceResponse {
 
@@ -17,11 +14,11 @@ public class DataServiceResponse {
         this.status = status;
     }
 
-    public static DataServiceResponse createResponse(Data body, HttpStatus status, String message){
+    public static DataServiceResponse createResponse(Data body, HttpStatus status, String message) {
         return new DataServiceResponse(body, message, status);
     }
 
-    public static DataServiceResponse emptyBodyResponse(HttpStatus status, String message){
+    public static DataServiceResponse emptyBodyResponse(HttpStatus status, String message) {
         return new DataServiceResponse(null, message, status);
     }
 

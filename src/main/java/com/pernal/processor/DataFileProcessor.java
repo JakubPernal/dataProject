@@ -18,9 +18,9 @@ import java.util.*;
 @Component
 public class DataFileProcessor {
 
-    private Logger logger = LoggerFactory.getLogger(DataFileProcessor.class);
+    private final Logger logger = LoggerFactory.getLogger(DataFileProcessor.class);
 
-    private DataServiceValidator dataServiceValidator;
+    private final DataServiceValidator dataServiceValidator;
 
     public DataFileProcessor(DataServiceValidator dataServiceValidator) {
         this.dataServiceValidator = dataServiceValidator;
@@ -32,7 +32,7 @@ public class DataFileProcessor {
 
             dataServiceValidator.validateHeader(headerLine);
 
-            return parseRows(br);
+            return processRows(br);
         } catch (IOException e) {
             logger.error("Error parsing file: ", e);
             return Collections.emptyList();
@@ -40,9 +40,8 @@ public class DataFileProcessor {
 
     }
 
-    private List<Data> parseRows(BufferedReader br) throws IOException {
+    private List<Data> processRows(BufferedReader br) throws IOException {
         List<Data> dataList = new ArrayList<>();
-        Set<String> primaryKeys = new HashSet<>();
         int lineCounter = 1;
         String line;
 
@@ -51,13 +50,12 @@ public class DataFileProcessor {
             String[] columnsData = line.trim().split(",");
 
             try {
-                validateRow(columnsData, primaryKeys);
+                validateRow(columnsData);
             } catch (DataValidationException e) {
                 logger.warn("Error in line {}, {}", lineCounter, e.getMessage());
                 continue;
             }
 
-            primaryKeys.add(columnsData[0]);
             dataList.add(parseRow(columnsData));
         }
 
@@ -67,7 +65,7 @@ public class DataFileProcessor {
     private Data parseRow(String[] columnsData) {
         Data data = new Data();
 
-        data.setIprimaryKey(columnsData[0]);
+        data.setPrimaryKey(columnsData[0]);
         data.setName(columnsData[1]);
         data.setDescription(columnsData[2]);
         data.setUpdateTimestamp(new Timestamp(Long.parseLong(columnsData[3])));
@@ -75,9 +73,8 @@ public class DataFileProcessor {
         return data;
     }
 
-    private void validateRow(String[] columnsData, Set<String> primaryKeys) throws DataValidationException {
+    private void validateRow(String[] columnsData) throws DataValidationException {
         dataServiceValidator.validateRowDataQuantity(columnsData);
-        dataServiceValidator.validatePrimaryKey(columnsData[0], primaryKeys);
         dataServiceValidator.validateTimestamp(columnsData[3]);
     }
 }
